@@ -148,7 +148,7 @@ Adding the blog's gradient resistance, `F_gradient = m · g · sin(θ)` with `θ
 | 9 | 8.36 s | 10.56 s | 46.55 m/s | 44.66 m/s |
 | 10.5 | 7.29 s | 8.92 s | 39.90 m/s | 39.90 m/s |
 
-![Flat ground vs 5% hill](speed_vs_time_hill_5pct.png)
+![Flat ground vs 5% hill](speed_vs_time_hill_5pct_gr9.png)
 
 Two things worth noting:
 

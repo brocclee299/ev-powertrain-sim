@@ -19,24 +19,45 @@ pip install -r requirements.txt
 python ev_sim.py
 ```
 
-This prints the results to the console and writes three plots:
+The program prints its results to the console — the time to reach 20 m/s and the top speed for each
+gear ratio — and writes three plots:
 
 | File | What it shows |
 |---|---|
 | `speed_vs_time_gr9.png` | Speed vs time at a gear ratio of 9 (Task 1) |
 | `speed_vs_time_all_ratios.png` | Gear ratios 7, 9 and 10.5 overlaid (Task 2) |
-| `speed_vs_time_hill_5pct.png` | Flat ground vs a 5% hill (bonus) |
+| `speed_vs_time_hill_5pct_gr9.png` | Flat ground vs a 5% hill (bonus) |
+
+Sample output:
+
+```
+==============================================================
+SELECTED GEAR RATIO: 9
+==============================================================
+  time to 20 m/s : 8.36 s
+  top speed      : 46.55 m/s
+```
 
 ## Changing the gear ratio
 
-The gear ratio is a named constant near the top of [`ev_sim.py`](ev_sim.py):
+Two ways, whichever suits.
+
+**Pass it on the command line** to try a ratio without touching the file:
+
+```bash
+python ev_sim.py 8.5      # try a gear ratio of 8.5
+python ev_sim.py 12       # try a gear ratio of 12
+```
+
+**Or edit the constant** near the top of [`ev_sim.py`](ev_sim.py) to change the default:
 
 ```python
 GEAR_RATIO = 9.0     # <<< THE MAIN INPUT: change me
 ```
 
-Edit that one number and re-run. The plot filename follows the ratio automatically.
-The list of ratios used for the comparison table is right below it:
+Either way the plot filenames follow the ratio automatically, so trying a new ratio never
+overwrites the figures from a previous one. The list of ratios used for the comparison table is
+just below the constant:
 
 ```python
 COMPARISON_RATIOS = [7.0, 9.0, 10.5]

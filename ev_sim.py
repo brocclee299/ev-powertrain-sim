@@ -25,13 +25,21 @@ The loop, matching the blog's block diagram:
       |                                           v
       +---  new speed  <---  acceleration  <---  wheel force
 
-Only two imports are needed:
+Only three imports are needed:
     math               - for pi, sin and atan. The loop works on one number
                          at a time (a scalar), so numpy would add nothing.
+    sys                - to read an optional gear ratio typed on the command
+                         line, so a different ratio can be tried without
+                         editing the file.
     matplotlib.pyplot  - to draw the speed-vs-time plots.
+
+Usage:
+    python ev_sim.py          # uses GEAR_RATIO set below (9)
+    python ev_sim.py 8.5      # tries a gear ratio of 8.5 instead
 """
 
 import math
+import sys
 
 import matplotlib
 matplotlib.use("Agg")  # render straight to PNG files; no interactive window needed
@@ -228,6 +236,32 @@ def label(gear_ratio):
     return f"{gear_ratio:g}"
 
 
+def gear_ratio_from_command_line():
+    """Return the gear ratio for the headline run.
+
+    Lets a ratio be tried straight from the terminal (`python ev_sim.py 8.5`)
+    instead of editing the file each time. With no argument given, it falls
+    back to the GEAR_RATIO constant set at the top.
+
+    sys.argv is the list of words typed on the command line, with the script
+    name itself at position 0, so any gear ratio would be at position 1.
+    """
+    if len(sys.argv) < 2:
+        return GEAR_RATIO
+
+    try:
+        ratio = float(sys.argv[1])
+    except ValueError:
+        print(f"'{sys.argv[1]}' is not a number - using {label(GEAR_RATIO)} instead.\n")
+        return GEAR_RATIO
+
+    if ratio <= 0:
+        print(f"A gear ratio must be positive - using {label(GEAR_RATIO)} instead.\n")
+        return GEAR_RATIO
+
+    return ratio
+
+
 # ---------------------------------------------------------------------------
 # INDEPENDENT CROSS-CHECKS
 # These recompute the expected top speed with algebra rather than simulation,
@@ -310,6 +344,21 @@ def main():
     assert 2.3 <= checkpoint <= 2.5, f"Checkpoint failed: got {checkpoint:.3f} m/s"
     print("  PASS\n")
 
+    # -- The selected gear ratio -------------------------------------------
+    # Either typed on the command line or taken from GEAR_RATIO at the top.
+    # These are the three outputs the challenge asks the program to report.
+    selected_ratio = gear_ratio_from_command_line()
+    times, speeds = simulate(selected_ratio)
+    reached = time_to_reach(times, speeds, TARGET_SPEED)
+
+    print("=" * 62)
+    print(f"SELECTED GEAR RATIO: {label(selected_ratio)}")
+    print("=" * 62)
+    print(f"  time to {TARGET_SPEED:g} m/s : "
+          f"{f'{reached:.2f} s' if reached is not None else 'never reached'}")
+    print(f"  top speed      : {max(speeds):.2f} m/s")
+    print()
+
     # -- Task 1 and 2: the three gear ratios on flat ground ----------------
     print("=" * 62)
     print("RESULTS - FLAT GROUND")
@@ -345,12 +394,11 @@ def main():
     print("PLOTS")
     print("=" * 62)
 
-    # Task 1: the headline run at whatever GEAR_RATIO is set to at the top.
-    times, speeds = simulate(GEAR_RATIO)
+    # Task 1: the headline run, at whichever ratio was selected above.
     plot_runs(
-        [(f"Gear ratio {label(GEAR_RATIO)}", times, speeds)],
-        f"EV acceleration from rest - gear ratio {label(GEAR_RATIO)}",
-        f"speed_vs_time_gr{label(GEAR_RATIO)}.png",
+        [(f"Gear ratio {label(selected_ratio)}", times, speeds)],
+        f"EV acceleration from rest - gear ratio {label(selected_ratio)}",
+        f"speed_vs_time_gr{label(selected_ratio)}.png",
     )
 
     # Task 2: all three ratios overlaid so the tradeoff is visible at a glance.
@@ -383,15 +431,14 @@ def main():
     print()
 
     # Flat vs hill at the headline ratio, to show the penalty directly.
-    flat_times, flat_speeds = simulate(GEAR_RATIO)
-    hill_times, hill_speeds = simulate(GEAR_RATIO, grade=HILL_GRADE)
+    hill_times, hill_speeds = simulate(selected_ratio, grade=HILL_GRADE)
     plot_runs(
         [
-            (f"Flat ground (ratio {label(GEAR_RATIO)})", flat_times, flat_speeds),
-            (f"{HILL_GRADE * 100:g}% hill (ratio {label(GEAR_RATIO)})", hill_times, hill_speeds),
+            (f"Flat ground (ratio {label(selected_ratio)})", times, speeds),
+            (f"{HILL_GRADE * 100:g}% hill (ratio {label(selected_ratio)})", hill_times, hill_speeds),
         ],
-        f"Effect of a {HILL_GRADE * 100:g}% gradient - gear ratio {label(GEAR_RATIO)}",
-        "speed_vs_time_hill_5pct.png",
+        f"Effect of a {HILL_GRADE * 100:g}% gradient - gear ratio {label(selected_ratio)}",
+        f"speed_vs_time_hill_5pct_gr{label(selected_ratio)}.png",
     )
 
 
