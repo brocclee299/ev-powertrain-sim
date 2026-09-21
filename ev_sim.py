@@ -74,12 +74,12 @@ def motor_torque(motor_rpm):
 
 def tractive_force(speed, gear_ratio):
     """Forward force (N) the tires push against the road."""
+    # The gear ratio is used twice: here it multiplies torque, and inside
+    # motor_rpm_from_speed it multiplies rpm. That double use is the whole
+    # gear ratio tradeoff - more force, but the redline arrives sooner.
     rpm = motor_rpm_from_speed(speed, gear_ratio)
     wheel_torque = motor_torque(rpm) * gear_ratio * DRIVETRAIN_EFFICIENCY
     return wheel_torque / TIRE_RADIUS
-    # Note the gear ratio is used twice: here it multiplies torque, and in
-    # motor_rpm_from_speed it multiplies rpm. That double use is the whole
-    # gear ratio tradeoff - more force, but the redline arrives sooner.
 
 
 def resistance_force(speed, grade=0.0):
